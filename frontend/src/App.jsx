@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import axios from "axios";
 
 //ICONS
 import {
@@ -13,20 +12,22 @@ import {
 import { FaSkullCrossbones } from "react-icons/fa6";
 
 function App() {
-  const [tasks, setTasks] = useState([]);
+  //Initialize the tasks with localstorage tasks array.
+  const [tasks, setTasks] = useState(() => {
+    //Getting the storedTasks from localStorge and parsing them back from JSON string to JSON Object
+    const storedTasks = JSON.parse(localStorage.getItem("tasks"));
+    //Storing the retrieved tasks into tasks array if localStorage is not empty
+    if (storedTasks) return storedTasks;
+  });
   const [input, setInput] = useState({
     task: "",
     completed: false,
   });
 
-  const fetchAPI = async () => {
-    const response = await axios.get("http://localhost:3000/api");
-    console.log(response.data.legs);
-  };
-
+  //To set the tasks in the localstorage
   useEffect(() => {
-    fetchAPI();
-  }, []);
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
 
   const [isEditing, setIsEditing] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(null);
@@ -36,14 +37,13 @@ function App() {
     const { name, value } = e.target;
     setInput((prevInput) => ({ ...prevInput, [name]: value }));
   }
-
   //To Handle Submit (Add tasks or Save Changes)
   function handleSubmit() {
     if (isEditing) {
       //For Editing The tasks
       setTasks((prevTasks) =>
         prevTasks.map((task, index) =>
-          index === currentIndex ? { ...input } : task
+          index === currentIndex ? { ...input, completed: false } : task
         )
       );
       setCurrentIndex(null);
@@ -59,20 +59,20 @@ function App() {
     }
     setInput({ task: "", completed: false });
   }
-
+  //To delete tasks
   function deleteTask(indexToDelete) {
     setTasks((prevTasks) =>
       prevTasks.filter((task, index) => indexToDelete !== index)
     );
   }
-
+  //To edit tasks
   function editTask(indexToEdit) {
     const taskToEdit = tasks[indexToEdit];
     setInput({ task: taskToEdit.task });
     setIsEditing(true);
     setCurrentIndex(indexToEdit);
   }
-
+  //To mark the task completed
   function taskCompleted(indexToToggle) {
     setTasks((prevTasks) =>
       prevTasks.map((task, index) =>
@@ -82,19 +82,19 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-black p-5 flex items-center justify-center">
-      <div className="bg-purple-800 rounded-md w-full max-w-4xl">
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-black p-5 flex items-center justify-center shadow-xl shadow-orange-800">
+      <div className="bg-purple-800 rounded-md w-full max-w-4xl shadow-md shadow-orange-500">
         <div className="container mx-auto p-4">
           <h1 className="text-center text-green-400 text-4xl font-serif mb-8">
             Spooky To-Do List
           </h1>
-          <div className="flex flex-col items-center mb-4">
-            <div className="flex justify-center">
+          <div className="flex flex-col items-center mb-4 w-full">
+            <div className="w-full max-w-xl flex justify-center">
               <input
                 type="text"
                 name="task"
                 id="task"
-                className="p-2 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full p-2 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="What's brewing?"
                 value={input.task}
                 onChange={handleChange}
@@ -112,33 +112,42 @@ function App() {
             </div>
             <div className="flex flex-col mt-5 overflow-x-auto max-h-96">
               <div className="w-full max-w-xl">
-                <table className="table-auto text-white w-full">
+                <table className="table-auto text-white w-full border-collapse rounded-md overflow-hidden border border-orange-500">
                   <thead className="bg-orange-500">
                     <tr>
-                      <th className="px-4 py-2 w-64">Task</th>
-                      <th className="px-4 py-2 w-32">Status</th>
-                      <th className="px-4 py-2 w-48">Actions</th>
+                      <th className="px-4 py-2 w-64 border border-orange-500">
+                        Task
+                      </th>
+                      <th className="px-4 py-2 w-32 border border-orange-500">
+                        Status
+                      </th>
+                      <th className="px-4 py-2 w-48 border border-orange-500">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
-                  <tbody className="text-center">
+                  <tbody className="text-center ">
                     {tasks.length === 0 ? (
                       <tr>
-                        <td className="px-4 py-2" colSpan="3">
+                        <td
+                          className="px-4 py-2 border border-orange-500"
+                          colSpan="3"
+                        >
                           No Task Found
                         </td>
                       </tr>
                     ) : (
                       tasks.map((item, index) => (
-                        <tr key={`task-${index}`}>
-                          <td className="px-4 py-2 text-start">
+                        <tr key={`task-${index}`} className="">
+                          <td className="px-4 py-2 border border-orange-500">
                             {item.task.length > 20
                               ? `${item.task.slice(0, 20)}...`
                               : item.task}
                           </td>
-                          <td className="px-4 py-2">
+                          <td className="px-4 py-2 border border-orange-500">
                             {item.completed ? "Completed" : "Pending"}
                           </td>
-                          <td className="px-4 py-2 flex justify-center">
+                          <td className="px-4 py-2 flex justify-center border border-orange-500">
                             <div className="flex items-center space-x-2">
                               <span
                                 className="bg-orange-500 text-black p-2 rounded-md hover:bg-orange-600 shadow-lg transition duration-300 cursor-pointer"
