@@ -21,7 +21,7 @@ function App() {
     //Getting the storedTasks from localStorge and parsing them back from JSON string to JSON Object
     const storedTasks = JSON.parse(localStorage.getItem("tasks"));
     //Storing the retrieved tasks into tasks array if localStorage is not empty
-    return storedTasks ||[];
+    return storedTasks || [];
   });
   const [input, setInput] = useState({
     task: "",
@@ -131,8 +131,7 @@ function App() {
               <div className="-m-1.5">
                 <div className="p-1.5 min-w-full inline-block align-middle rounded-md">
                   <div className="w-full max-w-xl border border-orange-500 rounded-md">
-                    <table className="w-full divide-y divide-orange-500 rounded-md"
-                    >
+                    <table className="w-full divide-y divide-orange-500 rounded-md">
                       <thead>
                         <tr className="bg-orange-500">
                           <th
@@ -149,7 +148,7 @@ function App() {
                           </th>
                           <th
                             scope="col"
-                            className="w-48 px-6 py-3 text-end text-xs font-medium text-white uppercase "
+                            className="w-48 px-6 py-3  text-xs font-medium text-white uppercase "
                           >
                             Actions
                           </th>
@@ -183,28 +182,46 @@ function App() {
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">
                                 <div className="flex items-center space-x-2">
-                                  <span
-                                    className="bg-orange-500 text-black p-2 rounded-md hover:bg-orange-600 shadow-lg transition duration-300 cursor-pointer"
-                                    onClick={() => editTask(index)}
-                                  >
-                                    <GiScrollQuill size={30} />
-                                  </span>
-                                  <span
-                                    className="bg-orange-500 text-black p-2 rounded-md hover:bg-orange-600 shadow-lg transition duration-300 cursor-pointer"
-                                    onClick={() => taskCompleted(index)}
-                                  >
-                                    {item.completed ? (
+                                  <div className="tooltip">
+                                    <button
+                                      className="bg-orange-500 text-black p-2 rounded-md hover:bg-orange-600 shadow-lg transition duration-300 cursor-pointer"
+                                      onClick={() => editTask(index)}
+                                    >
+                                      <GiScrollQuill size={30} />
+                                    </button>
+                                    <span className="tooltiptext">
+                                      Edit Task
+                                    </span>
+                                  </div>
+
+                                  <div className="tooltip">
+                                    <button
+                                      className="bg-orange-500 text-black p-2 rounded-md hover:bg-orange-600 shadow-lg transition duration-300 cursor-pointer"
+                                      onClick={() => taskCompleted(index)}
+                                    >
+                                      {item.completed ? (
+                                        <GiGhost size={30} />
+                                      ) : (
                                       <GiPumpkinLantern size={30} />
-                                    ) : (
-                                      <GiGhost size={30} />
-                                    )}
-                                  </span>
-                                  <span
-                                    className="bg-orange-500 text-black p-2 rounded-md hover:bg-orange-600 shadow-lg transition duration-300 cursor-pointer"
-                                    onClick={() => deleteTask(index)}
-                                  >
-                                    <FaSkullCrossbones size={30} />
-                                  </span>
+                                      )}
+                                    </button>
+                                    <span className="tooltiptext">
+                                      {item.completed
+                                        ? "Mark as Incomplete"
+                                        : "Mark as Completed"}
+                                    </span>
+                                  </div>
+                                  <div className="tooltip">
+                                    <button
+                                      className="bg-orange-500 text-black p-2 rounded-md hover:bg-orange-600 shadow-lg transition duration-300 cursor-pointer"
+                                      onClick={() => deleteTask(index)}
+                                    >
+                                      <FaSkullCrossbones size={30} />
+                                    </button>
+                                    <span className="tooltiptext">
+                                      Delete Task
+                                    </span>
+                                  </div>
                                 </div>
                               </td>
                             </tr>
@@ -216,6 +233,7 @@ function App() {
                 </div>
               </div>
             </div>
+
             {/* <div className="flex flex-col mt-5 overflow-x-auto max-h-96">
               <div
                 className="w-full max-w-xl "
