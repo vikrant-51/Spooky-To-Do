@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { motion } from "framer-motion";
 
 //ICONS
 import {
