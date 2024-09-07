@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+import { motion } from "framer-motion";
 
 //ICONS
 import {
@@ -10,8 +11,12 @@ import {
   GiScrollQuill,
 } from "react-icons/gi";
 import { FaSkullCrossbones } from "react-icons/fa6";
+import Toast from "./toast";
 
 function App() {
+  //Toast VAriable
+  const [toast, setToast] = useState({ toastType: "Added", show: false });
+
   //Initialize the tasks with localstorage tasks array.
   const [tasks, setTasks] = useState(() => {
     //Getting the storedTasks from localStorge and parsing them back from JSON string to JSON Object
@@ -48,14 +53,16 @@ function App() {
       );
       setCurrentIndex(null);
       setIsEditing(false);
+      showToast("Task Edited!");
     } else {
       //For New tasks
       if (input.task === "") {
         console.log("Task is required!");
+        showToast("Task Required!");
       } else {
         setTasks((prevTasks) => [...prevTasks, input]);
+        showToast("Task Added!");
       }
-      console.log(tasks);
     }
     setInput({ task: "", completed: false });
   }
@@ -64,6 +71,7 @@ function App() {
     setTasks((prevTasks) =>
       prevTasks.filter((task, index) => indexToDelete !== index)
     );
+    showToast("Task Deleted!");
   }
   //To edit tasks
   function editTask(indexToEdit) {
@@ -79,16 +87,26 @@ function App() {
         indexToToggle === index ? { ...task, completed: !task.completed } : task
       )
     );
+    showToast("Task Completed!");
+  }
+
+  //To show toast
+  function showToast(type) {
+    setToast((prevState) => ({ ...prevState, toastType: type, show: true }));
+    setTimeout(() => {
+      setToast((prevState) => ({ ...prevState, toastType: "", show: false }));
+    }, 2000);
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-black p-5 flex items-center justify-center shadow-xl shadow-orange-800">
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-black p-5 flex items-center justify-center">
       <div className="bg-purple-800 rounded-md w-full max-w-4xl shadow-md shadow-orange-500">
         <div className="container mx-auto p-4">
           <h1 className="text-center text-green-400 text-4xl font-serif mb-8">
             Spooky To-Do List
           </h1>
           <div className="flex flex-col items-center mb-4 w-full">
+            <Toast toastType={toast.toastType} showToast={toast.show} />
             <div className="w-full max-w-xl flex justify-center">
               <input
                 type="text"
@@ -110,12 +128,103 @@ function App() {
                 )}
               </button>
             </div>
-            <div className="flex flex-col mt-5 overflow-x-auto max-h-96">
-              <div className="w-full max-w-xl">
-                <table className="table-auto text-white w-full border-collapse rounded-md overflow-hidden border border-orange-500">
+            <div className="flex flex-col mt-5">
+              <div className="-m-1.5">
+                <div className="p-1.5 min-w-full inline-block align-middle rounded-md">
+                  <div className="w-full max-w-xl border border-orange-500 rounded-md">
+                    <table className="w-full divide-y divide-orange-500 rounded-md"
+                    >
+                      <thead>
+                        <tr className="bg-orange-500">
+                          <th
+                            scope="col"
+                            className="w-60 px-6 py-3 text-start text-xs font-medium text-white uppercase "
+                          >
+                            Task
+                          </th>
+                          <th
+                            scope="col"
+                            className="w-32 px-6 py-3 text-start text-xs font-medium text-white uppercase "
+                          >
+                            Status
+                          </th>
+                          <th
+                            scope="col"
+                            className="w-48 px-6 py-3 text-end text-xs font-medium text-white uppercase "
+                          >
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {tasks.length === 0 ? (
+                          <tr className="bg-white">
+                            <td
+                              className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-800 "
+                              colSpan={3}
+                            >
+                              No Task Found
+                            </td>
+                          </tr>
+                        ) : (
+                          tasks.map((item, index) => (
+                            <tr
+                              key={`task-${index}`}
+                              className={`${
+                                !item.completed ? "bg-white" : "bg-gray-300"
+                              }`}
+                            >
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 ">
+                                {item.task.length > 20
+                                  ? `${item.task.slice(0, 20)}...`
+                                  : item.task}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">
+                                {item.completed ? "Completed" : "Pending"}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 ">
+                                <div className="flex items-center space-x-2">
+                                  <span
+                                    className="bg-orange-500 text-black p-2 rounded-md hover:bg-orange-600 shadow-lg transition duration-300 cursor-pointer"
+                                    onClick={() => editTask(index)}
+                                  >
+                                    <GiScrollQuill size={30} />
+                                  </span>
+                                  <span
+                                    className="bg-orange-500 text-black p-2 rounded-md hover:bg-orange-600 shadow-lg transition duration-300 cursor-pointer"
+                                    onClick={() => taskCompleted(index)}
+                                  >
+                                    {item.completed ? (
+                                      <GiPumpkinLantern size={30} />
+                                    ) : (
+                                      <GiGhost size={30} />
+                                    )}
+                                  </span>
+                                  <span
+                                    className="bg-orange-500 text-black p-2 rounded-md hover:bg-orange-600 shadow-lg transition duration-300 cursor-pointer"
+                                    onClick={() => deleteTask(index)}
+                                  >
+                                    <FaSkullCrossbones size={30} />
+                                  </span>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* <div className="flex flex-col mt-5 overflow-x-auto max-h-96">
+              <div
+                className="w-full max-w-xl "
+              >
+                <table className="table-auto text-white w-full  rounded-md border border-orange-500 ">
                   <thead className="bg-orange-500">
                     <tr>
-                      <th className="px-4 py-2 w-64 border border-orange-500">
+                      <th className="px-4 py-2 w-60 border border-orange-500">
                         Task
                       </th>
                       <th className="px-4 py-2 w-32 border border-orange-500">
@@ -126,12 +235,12 @@ function App() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="text-center ">
+                  <tbody className="text-center">
                     {tasks.length === 0 ? (
-                      <tr>
+                      <tr className="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
                         <td
-                          className="px-4 py-2 border border-orange-500"
-                          colSpan="3"
+                          className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200"
+                          colSpan={3}
                         >
                           No Task Found
                         </td>
@@ -179,7 +288,7 @@ function App() {
                   </tbody>
                 </table>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
