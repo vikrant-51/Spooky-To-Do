@@ -21,7 +21,7 @@ function App() {
     //Getting the storedTasks from localStorge and parsing them back from JSON string to JSON Object
     const storedTasks = JSON.parse(localStorage.getItem("tasks"));
     //Storing the retrieved tasks into tasks array if localStorage is not empty
-    if (storedTasks) return storedTasks;
+    if (storedTasks) return storedTasks ||[];
   });
   const [input, setInput] = useState({
     task: "",
