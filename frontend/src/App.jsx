@@ -75,7 +75,7 @@ function App() {
   //To edit tasks
   function editTask(indexToEdit) {
     const taskToEdit = tasks[indexToEdit];
-    setInput({ task: taskToEdit.task });
+    setInput({ task: taskToEdit.task, completed: taskToEdit.completed });
     setIsEditing(true);
     setCurrentIndex(indexToEdit);
   }
@@ -156,7 +156,7 @@ function App() {
                         </tr>
                       </thead>
                       <tbody>
-                        {tasks.length === 0 ? (
+                        {Array.isArray(tasks) && tasks.length === 0 ? (
                           <tr className="bg-white">
                             <td
                               className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-800 "
